@@ -1,7 +1,7 @@
 import re
 import logging
 
-from path import path
+from .path import path
 from Mozilla.CompareLocales import compareDirs
 
 logging.basicConfig()
@@ -36,18 +36,18 @@ def cmp_listed_locales(dirname):
 
     baseloc = None
     for bl in ('en-US', 'en', 'en-NZ', 'de-DE', 'de', 'fr-FR', 'fr'):
-        if listed.has_key(bl):
+        if bl in listed:
             baseloc = bl
             break
     if not baseloc:
         raise ValueError("No base locale")
 
-    print "Using", baseloc, "as base locale"
+    print("Using", baseloc, "as base locale")
 
     bad = list()
     good = list()
     missing = list()
-    for l,p in listed.iteritems():
+    for l,p in listed.items():
         if not p.isdir():
           continue
         if l == baseloc:
@@ -75,8 +75,8 @@ def cmp_listed_locales(dirname):
         if not 'errors' in summary:
             summary['errors'] = 0
 
-        print "Locale: %s" % l
-        print "Strings: %d (Missing: %d / %.2f%%)\nChanged: %d (%.2f%%), Unchanged %d (%.2f%%)\nErrors: %d" % (
+        print("Locale: %s" % l)
+        print("Strings: %d (Missing: %d / %.2f%%)\nChanged: %d (%.2f%%), Unchanged %d (%.2f%%)\nErrors: %d" % (
             summary['total'],
             summary['missing'],
             100.0 * summary['missing'] / (summary['total'] + summary['missing']),
@@ -85,31 +85,31 @@ def cmp_listed_locales(dirname):
             summary['unchanged'],
             100.0 * summary['unchanged'] / summary['total'],
             summary['errors']
-            )
+            ))
         branches = list(res.details.branches)
         branches.sort()
-        print "Issues:"
+        print("Issues:")
         for b in branches:
             for f in b:
-                print "*", f
-                for k, v in res.details[f].iteritems():
+                print("*", f)
+                for k, v in res.details[f].items():
                     if isinstance(v, list):
                         v = ', '.join(v)
                     try:
-                        print "\t%s: %s" % (unicode(k), unicode(v))
+                        print("\t%s: %s" % (str(k), str(v)))
                     except:
                         pass
-        print
-    for l,p in listed.iteritems():
+        print()
+    for l,p in listed.items():
         if p is True or l == baseloc:
             continue
         missing += l,
     if bad:
-        print "Bad:", ' '.join(bad)
+        print("Bad:", ' '.join(bad))
     if missing:
-        print "Missing:", ' '.join(missing)
+        print("Missing:", ' '.join(missing))
     if good:
-        print 'Good:', ' '.join(good)
+        print('Good:', ' '.join(good))
     if bad or missing:
         raise ValueError("Not valid")
 
@@ -117,8 +117,8 @@ if __name__ == "__main__":
     import sys
     try:
         cmp_listed_locales(path("."))
-    except Exception,ex:
-        print >>sys.stderr, ex
+    except Exception as ex:
+        print(ex, file=sys.stderr)
         sys.exit(1)
     else:
         sys.exit(0)

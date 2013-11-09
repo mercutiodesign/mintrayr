@@ -42,10 +42,10 @@ Example::
     for f in d.files('*.py'):
         f.chmod(0755)
 
-path.py requires Python 2.5 or later.
+path.py requires Python 3
 """
 
-from __future__ import with_statement
+
 
 import sys
 import warnings
@@ -60,6 +60,7 @@ import tempfile
 import functools
 import operator
 import re
+from functools import reduce
 
 try:
     import win32security
@@ -73,21 +74,6 @@ except ImportError:
 
 ################################
 # Monkey patchy python 3 support
-try:
-    basestring
-except NameError:
-    basestring = str
-
-try:
-    unicode
-except NameError:
-    unicode = str
-
-try:
-    os.getcwdu
-except AttributeError:
-    os.getcwdu = os.getcwd
-
 if sys.version < '3':
     def u(x):
         return codecs.unicode_escape_decode(x)[0]
@@ -144,7 +130,7 @@ class multimethod(object):
         )
 
 
-class path(unicode):
+class path(str):
     """ Represents a filesystem path.
 
     For documentation on individual methods, consult their
@@ -187,7 +173,7 @@ class path(unicode):
             return NotImplemented
 
     def __radd__(self, other):
-        if not isinstance(other, basestring):
+        if not isinstance(other, str):
             return NotImplemented
         return self._next_class(other.__add__(self))
 
@@ -214,7 +200,7 @@ class path(unicode):
     @classmethod
     def getcwd(cls):
         """ Return the current working directory as a path object. """
-        return cls(os.getcwdu())
+        return cls(os.getcwd())
 
     #
     # --- Operations on path strings.
@@ -759,7 +745,7 @@ class path(unicode):
         conversion.
 
         """
-        if isinstance(text, unicode):
+        if isinstance(text, str):
             if linesep is not None:
                 # Convert all standard end-of-line sequences to
                 # ordinary newline characters.
@@ -847,7 +833,7 @@ class path(unicode):
             mode = 'wb'
         with self.open(mode) as f:
             for line in lines:
-                isUnicode = isinstance(line, unicode)
+                isUnicode = isinstance(line, str)
                 if linesep is not None:
                     # Strip off any existing line-end and add the
                     # specified linesep string.
